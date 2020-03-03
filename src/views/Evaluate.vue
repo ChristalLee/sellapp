@@ -11,13 +11,11 @@
                     <Rate disabled show-text allow-half v-model="valueCustomText">
                         <span style="color: #f5a623">{{ valueCustomText }}</span>
                     </Rate>
-                    <!-- <span>3.9</span> -->
                 </div>
                 <div class="starBox">服务态度
                     <Rate disabled show-text allow-half v-model="valueCustomText">
                         <span style="color: #f5a623">{{ valueCustomText }}</span>
                     </Rate>
-                    <!-- <span>4.0</span>                     -->
                 </div>
                 <p>送达时间
                     <span>44分钟</span>
@@ -31,21 +29,22 @@
                 <i-button>不满意10</i-button>
             </div>
             <div class="tips"><Icon type="ios-checkmark-circle" />只看有内容的评价</div>
-            <div class="contentBox" v-for="item in data" :key="item.id">
+            <div class="contentBox" v-for="(item,index) in data" :key="index">
                 <div class="contentTop">
                     <img :src="item.avatar" alt="">
                 <div>
                     <p>{{item.username}}</p>
                     <p class="starBox">
-                        <Rate disabled v-model="item.score" />
-                        <span>{{item.deliveryTime}}分钟送达</span>
+                        <Rate disabled v-model="valueDisabled[index]" />
+                        <span v-show="item.deliveryTime">{{item.deliveryTime}}分钟送达</span>
                     </p>
                 </div>
-                <p>{{item.rateTime}}</p>
+                <p class="single">{{ item.rateTime | formatDate }}</p>
                 </div>
                 <div class="contentBottom">
                     <p>{{item.text}}</p>
                     <div class="recommend">
+                        <Icon type="md-thumbs-up" v-show="item.recommend!=0"/>
                         <span v-for="value in item.recommend" :key="value.id">{{value}}</span>
                     </div>
                 </div>
@@ -64,14 +63,32 @@ export default {
           score: ""
         }
       ],
-        valueCustomText: 3.8
+      valueCustomText: 3.8,
+      valueDisabled: []
     };
   },
   created() {
     getRatings().then(res => {
       console.log(res.data.data);
       this.data = res.data.data;
+      for (let i of res.data.data) {
+        this.valueDisabled.push(i.score);
+      }
     });
+  },
+  filters: {
+    formatDate: function(date) {
+      var d = new Date(date);
+      var year = d.getFullYear();
+      var month = d.getMonth() + 1;
+      var day = d.getDate() < 10 ? "0" + d.getDate() : "" + d.getDate();
+      var hour = d.getHours();
+      var minutes = d.getMinutes();
+      var seconds = d.getSeconds();
+      return (
+        year + "-" +month +"-" +day +" " +hour +":" +minutes +":" +seconds
+      );
+    }
   }
 };
 </script>
@@ -97,9 +114,9 @@ export default {
       .starBox {
         display: flex;
         width: 200px;
-        .ivu-rate{
-            font-size: 16px;
-             display: flex;            
+        .ivu-rate {
+          font-size: 16px;
+          display: flex;
         }
       }
     }
@@ -124,14 +141,29 @@ export default {
       .contentTop {
         padding-top: 20px;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
+        text-align: center;
+        .single{
+          text-align: right;
+        }
+        div {
+          margin-left: 8px;
+          .starBox {
+            width: 100%;
+            .ivu-rate {
+              font-size: 16px;
+            }
+          }
+        }
         img {
           width: 30px;
           height: 30px;
+          text-align: left;
+          
         }
       }
       .contentBottom {
-        padding: 10px 0 20px 20px;
+        padding: 10px 0 20px 30px;
         border-bottom: 1px solid #ccc;
         p {
           font-size: 1rem;
@@ -145,6 +177,10 @@ export default {
             text-align: center;
             margin: 15px 15px 0 0;
             border: 1px solid #ccc;
+          }
+          .ivu-icon {
+            font-size: 18px;
+            color: #039edf;
           }
         }
       }

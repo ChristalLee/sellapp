@@ -8,12 +8,13 @@ const routes = [
   {
     path: '/',
     name: 'Main',
+    redirect: "/Goods",     
     component: Main,
     children:[
       {
         path: '/goods',
         name: 'goods',
-        component: () => import('../views/Goods.vue')
+        component: () => import('../views/Goods.vue'),
       },
       {
         path: '/evaluate',
@@ -24,7 +25,7 @@ const routes = [
         path: '/merchant',
         name: 'merchant',
         component: () => import('../views/Merchant.vue')
-      }
+      },
     ]
   },
 ]

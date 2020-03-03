@@ -1,8 +1,8 @@
 <template>
     <div>
+        <div id="mc" v-show="isShow"><info v-show="isShow"></info></div>
         <div class="headBox" :style="{backgroundImage:'url('+data.avatar+')',backgroundReapet:'no-reapet',backgroundSize:'100% 100%'}"></div>
         <div class="sellInfo" >
-            <!-- <img :src="this.data.pics[0]" alt=""> -->
             <div class="info">
                 <img :src="data.avatar" alt="" class="headImg">
                 <div class="text">
@@ -33,25 +33,40 @@
             <router-link to="/Merchant" active>商家</router-link>
         </div>
         <router-view></router-view>
-        <div class="shopBar">
-            <div class="imgBox">
-                <img src="../assets/imgs/shopbtn.png" alt="">
+        <transition name="slide-fade">
+            <div class="shopBox" v-show="shopCarShow">
+                <shopcar></shopcar>            
             </div>
-                <span>￥0</span>
+        </transition>
+        <div class="shopBar" @click="shopCarShow=!shopCarShow">
+            <div class="imgBox">
+                <img v-show="getTotal==0" src="../assets/imgs/shopbtn.png" alt="">
+                <img v-show="getTotal>0" src="../assets/imgs/shopcar.png" alt="">
+            </div>
+                <span>￥{{getTotal}}</span>
                 <span>另需配送费￥{{data.deliveryPrice}}元</span>
-                <div class="box">
+                <div class="box" v-show="getTotal<20">
                     ￥{{data.minPrice}}起送
+                </div>
+                <div class="box count" v-show="getTotal>=20" >
+                   去结算
                 </div>
         </div>
     </div>
 </template>
 
 <script>
+import shopcar from './Shopcar.vue'
 import { getSeller } from "../api/apis.js";
 export default {
+    components:{
+        shopcar
+    },
   data() {
     return {
-      data: {}
+      data: {},
+      isShow:false,
+      shopCarShow:false, //购物车面板的显示     
     };
   },
   created() {
@@ -59,30 +74,53 @@ export default {
       console.log(res.data.data);
       this.data = res.data.data;
     });
-  }
+  },
+  computed:{
+      getTotal(){
+          var total=0;
+          for(let i of this.$store.getters.total){
+          total+=i.price* i.count             
+          }
+          return total
+      }
+  },
 };
 </script>
+<style>
+html,body,#app{
+    height: 100%;
+}
+</style>
 
 <style lang="less" scoped>
+#mc{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 6;
+}
 .headBox{
     position: absolute;
     top:0;
     left:0;
     width: 100%;
-    height: 136px;
+    height: 146px;
     filter: blur(4px);
     z-index: 0;
 }
 .sellInfo {
-  height: 136px;
+  height: 146px;
   width: 100%;
   color: #fff;
   position: relative;
   z-index: 1;
+  background-color: rgba(0, 0, 0, 0.4);         
   .info {
     display: flex;
     align-items: center;
-    padding: 5px 18px;
+    padding: 18px;
     .headImg {
       width: 80px;
       height: 80px;
@@ -95,13 +133,13 @@ export default {
         display: flex;
         align-items: center;
         .brand {
-          width: 45px;
-          height: 24px;
+          width: 40px;
+          height: 20px;
           margin-right: 10px;
         }
         .decrease {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           margin-right: 10px;
         }
       
@@ -142,6 +180,14 @@ export default {
     color: red;
   }
 }
+.shopBox{
+    width: 100%;
+    height: 50%;
+    overflow: scroll;
+    position: fixed;
+    bottom: 50px;
+    background-color: #eee;
+}
 .shopBar {
   width: 100%;
   height: 50px;
@@ -161,7 +207,6 @@ export default {
       position: absolute;
       bottom: 8px;
       left: 18px;
-      
       img{
           width: 40px;
           height: 40px;
@@ -175,8 +220,26 @@ export default {
     text-align: center;
     line-height: 50px;
   }
-  span{
-      padding-left: 80px;
+  .count{
+      background-color: #FFD161;
+      color: #eee;
   }
+  span{
+      padding-left: 66px;
+  }
+}
+
+/* 可以设置不同的进入和离开动画 */
+/* 设置持续时间和动画函数 */
+.slide-fade-enter-active {
+  transition: all .8s ease;
+}
+.slide-fade-leave-active {
+  transition: all .8s ease;
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active for below version 2.1.8 */ {
+  transform: translateY(200px);
+  opacity: 0;
 }
 </style>

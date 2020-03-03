@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // 创建一个请求对象
 let req=axios.create({
-    baseURL:'http://192.168.1.2:3000',
+    baseURL:'http://192.168.1.3:3000',
     timeout:10000,
 })
 // axios的封装
